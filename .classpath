@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/sun jdk 1.6.0-25"/>
+	<classpathentry kind="lib" path="/data/playground/iText/bcmail-jdk15-146.jar"/>
+	<classpathentry kind="lib" path="/data/playground/iText/bcprov-jdk15-146.jar"/>
+	<classpathentry kind="lib" path="/data/playground/iText/bctsp-jdk15-146.jar"/>
+	<classpathentry kind="lib" path="/data/playground/iText/itext-asian.jar"/>
+	<classpathentry kind="lib" path="/data/playground/iText/itext-asiancmaps.jar"/>
+	<classpathentry kind="lib" path="/data/playground/iText/itext-hyph-xml.jar"/>
+	<classpathentry kind="lib" path="/data/playground/iText/itextpdf-5.1.0.jar" sourcepath="/data/playground/iText/itextpdf-5.1.0-sources.jar"/>
+	<classpathentry kind="lib" path="/data/playground/iText/itext-xtra-5.1.0.jar"/>
+	<classpathentry kind="lib" path="/LIASToolBox/dist/LIASToolBox.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/data/eclipse/LIASToolBox/doc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/LIASToolBox/dist/lib/jewelcli-0.6.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

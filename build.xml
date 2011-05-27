@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<project name="LIASToolBox" default="main">
+	<target name="main" depends="doc,compress" />
+	<target name="compress" description="Build JAR">
+		<jar destfile="dist/PdfTool.jar" index="true">
+			<fileset dir="bin" />
+		</jar>
+	</target>
+	<target name="doc">
+		<javadoc sourcepath="src" destdir="doc" use="true" />
+	</target>
+</project>
