@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<project name="LIASToolBox" default="main">
+<project name="PdfTool" default="main">
 	<target name="main" depends="doc,compress" />
 	<target name="compress" description="Build JAR">
 		<jar destfile="dist/PdfTool.jar" index="true">
@@ -7,6 +7,6 @@
 		</jar>
 	</target>
 	<target name="doc">
-		<javadoc sourcepath="src" destdir="doc" use="true" />
+		<javadoc sourcepath="src" destdir="doc" use="true"/>
 	</target>
 </project>

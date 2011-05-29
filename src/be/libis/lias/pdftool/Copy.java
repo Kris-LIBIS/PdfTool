@@ -23,6 +23,18 @@ import com.itextpdf.text.pdf.PdfImportedPage;
 import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfReader;
 
+/**
+ * Class that combines all operations for copying PDF documents.
+ * 
+ * The class is capable of creating a copy of a PDF and:
+ * <ul>
+ * <li>apply a watermark image or text, including many custom settings
+ * <li>protect the PDF against printing, copying or modification
+ * <li>protect the PDF with a password
+ * <li>select a subset of the pages to be copied
+ * <li>change the metadata info
+ * </ul>
+ */
 public class Copy {
 
   private static final Logger logger        = Logger.getLogger(Copy.class.getName());
@@ -36,7 +48,12 @@ public class Copy {
   private static BaseFont     bf;
 
   /**
-   * @param args
+   * Main application entry point.
+   * 
+   * The method parses the command line arguments and checks them for common mistakes.
+   * The real work is left to the class constructor which is call at the end.
+   * 
+   * @param args the command line arguments
    * @throws IOException
    */
   public static void main(String[] args) throws IOException {
@@ -87,14 +104,25 @@ public class Copy {
     new Copy(source, target, options);
   }
 
+  /**
+   * Helper class to calculate image and text box sizes.
+   * 
+   * This class takes the text size and rotation into account. It also deals with
+   * gap sizes.
+   */
   private class Size {
-    public float real_width;
-    public float real_height;
-    public float gap_width;
-    public float gap_height;
-    public float total_width;
-    public float total_height;
+    public float real_width; /** the width of the object's bounding box */ 
+    public float real_height; /** the height of the object's bounding box */
+    public float gap_width; /** the width of the whitespace around the object */
+    public float gap_height; /** the height of the whitespace around the object */
+    public float total_width; /** the total width of the object including the whitespace */
+    public float total_height; /** the total height of the object including the whitespace */
 
+    /**
+     * Constructor for a text box
+     * 
+     * @param watermark_text
+     */
     public Size(List<String> watermark_text) {
       float cosine = (float) Math.abs(Math.cos(Math.toRadians(text_rotation)));
       float sine = (float) Math.abs(Math.sin(Math.toRadians(text_rotation)));
@@ -111,12 +139,20 @@ public class Copy {
       calculate_derived_sizes();
     }
 
+    /**
+     * Constructor for an image
+     * 
+     * @param image
+     */
     public Size(Image image) {
       real_width = image.getWidth();
       real_height = image.getHeight();
       calculate_derived_sizes();
     }
 
+    /**
+     * method that calculates the gap and total sizes once the object's bounding box size is known
+     */
     private void calculate_derived_sizes() {
       gap_width = real_width * gap_ratio + gap_size;
       gap_height = real_height * gap_ratio + gap_size;
@@ -125,21 +161,28 @@ public class Copy {
     }
   }
 
-  Copy(File source, File target, CopyOptions options) {
+  /**
+   * Constructor that performs the real work.
+   * 
+   * @param source The PDF to be copied
+   * @param target The PDF to be created
+   * @param options The command line options
+   */
+  public Copy(File source, File target, CopyOptions options) {
     try {
-      boolean do_watermark = options.isWatermarkText() || options.isWatermarkImage();
-
+      // Create reader on the source PDF and select the pages that were requested
       PdfReader reader = new PdfReader(source.getAbsolutePath());
       if (options.isPageRanges()) {
         reader.selectPages(options.getPageRanges());
       }
       int n = reader.getNumberOfPages();
 
+      // Create a document and copier for the target PDF
       Document document = new Document();
       PdfCopy copy = new PdfCopy(document, new FileOutputStream(target));
       copy.setPdfVersion(PdfCopy.VERSION_1_7);
 
-      // Encryption
+      // Set encryption and compression on the target PDF
       String owner_password = new RandomString(32).nextString();
       String user_password = (options.isPassword() ? options.getPassword() : "");
       int permissions = 0 + (options.getAllowPrint() ? PdfCopy.ALLOW_PRINTING : 0)
@@ -149,11 +192,14 @@ public class Copy {
       int encryption = PdfCopy.ENCRYPTION_AES_128 | PdfCopy.DO_NOT_ENCRYPT_METADATA;
 
       copy.setEncryption(user_password.getBytes(), owner_password.getBytes(), permissions, encryption);
+      
+      copy.setFullCompression();
 
       // The encryption should be defined before the document is opened
       document.open();
       
-      // Metadata
+      // Collect metadata from the source PDF, then overwrite with the command line options
+      // and set the resulting metadata info on the target PDF
       HashMap<String, String> info = reader.getInfo();
       String key = "Title";
       if (options.isTitle())
@@ -181,6 +227,7 @@ public class Copy {
       if (info.containsKey(key))
         document.addAuthor(info.get(key));
 
+      // Initialize the watermark objects
       Image image = null;
       List<String> watermark_text = null;
       Size size = null;
@@ -194,14 +241,19 @@ public class Copy {
         size = new Size(image);
       }
 
+      // required for ???
       copy.createXmpMetadata();
 
+      // Process each page from the reader selection
       for (int index = 1; index <= n; index++) {
         PdfImportedPage page = copy.getImportedPage(reader, index);
-        Rectangle dimensions = page.getBoundingBox();
         PdfCopy.PageStamp stamper = copy.createPageStamp(page);
-        if (do_watermark) {
+        // Process watermark objects if required
+        if (size != null) {
+          // get over content to put watermark on top of all other objects
           PdfContentByte cb = stamper.getOverContent();
+          
+          // create and set the graphics state
           cb.beginText();
           PdfGState gstate = new PdfGState();
           gstate.setFillOpacity(opacity);
@@ -210,17 +262,24 @@ public class Copy {
           cb.saveState();
           cb.setGState(gstate);
 
+          // set font for text watermark
           if (watermark_text != null) {
             cb.setFontAndSize(bf, font_size);
             cb.setColorFill(BaseColor.BLACK);
           }
 
+          // get the page dimensions
+          Rectangle dimensions = page.getBoundingBox();
           float xl = dimensions.getLeft();
           float xr = dimensions.getRight();
           float yb = dimensions.getBottom();
           float yt = dimensions.getTop();
 
+          // affine transformation is actually ony required for text watermark
+          // but we create it here to avoid the costly object creation for each text instancee
           AffineTransform transform = new AffineTransform();
+          
+          // the two nested loops create the matrix of watermark objects on the page
           float x = xl + size.gap_width / 2f;
           while (x < xr) {
             float y = yb + size.gap_height / 2f;
@@ -228,16 +287,16 @@ public class Copy {
               if (image != null) {
                 cb.addImage(image, size.real_width, 0, 0, size.real_height, x, y);
               } else {
+                // Text position and rotation is performed by the affine transformation matrix
                 transform.setToTranslation(x, y);
                 transform.rotate(Math.toRadians(text_rotation));
                 cb.setTextMatrix(transform);
 
-                float local_y = 0;
+                float delta_y = - font_size * 1.5f;
                 for (String text : watermark_text) {
-                  cb.moveText(0, local_y);
                   cb.showTextKerned(text);
-                  local_y -= font_size * 1.5f;
                   cb.newlineText();
+                  cb.moveText(0, delta_y);
                 }
               }
               y += size.total_height;
@@ -257,6 +316,7 @@ public class Copy {
       reader.close();
     } catch (Exception e) {
       System.out.format("Caught exception: %s", e.toString());
+      e.printStackTrace(System.out);
     }
   }
 
