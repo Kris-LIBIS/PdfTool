@@ -60,11 +60,11 @@ public interface CopyOptions extends GeneralOptions {
 
   boolean isKeyFile();
 
-  @Option(longName = "ranges", description = "Page range selection")
+  @Option(longName = "ranges", description = "Page range selection (comma-separated list of '[!][o][odd][e][even]start[-end]')")
   String getPageRanges();
 
   boolean isPageRanges();
-
+  
   @Option(longName = "wm_text", description = "Watermark text - each value will be printed on a separate line")
   List<String> getWatermarkText();
 

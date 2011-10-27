@@ -7,14 +7,15 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/LIASToolBox/dist/lib/jewelcli-0.6.jar"/>
-	<classpathentry kind="lib" path="dist/lib/bcmail-jdk15-146.jar"/>
-	<classpathentry kind="lib" path="dist/lib/bcprov-jdk15-146.jar"/>
-	<classpathentry kind="lib" path="dist/lib/bctsp-jdk15-146.jar"/>
-	<classpathentry kind="lib" path="dist/lib/itext-asian.jar"/>
-	<classpathentry kind="lib" path="dist/lib/itext-asiancmaps.jar"/>
-	<classpathentry kind="lib" path="dist/lib/itext-hyph-xml.jar"/>
-	<classpathentry kind="lib" path="dist/lib/itext-xtra-5.1.0.jar"/>
-	<classpathentry kind="lib" path="dist/lib/itextpdf-5.1.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/LIASToolBox"/>
+	<classpathentry kind="lib" path="lib/bcmail-jdk15-146.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk15-146.jar"/>
+	<classpathentry kind="lib" path="lib/bctsp-jdk15-146.jar"/>
+	<classpathentry kind="lib" path="lib/itext-asian.jar"/>
+	<classpathentry kind="lib" path="lib/itext-asiancmaps.jar"/>
+	<classpathentry kind="lib" path="lib/itext-hyph-xml.jar"/>
+	<classpathentry kind="lib" path="lib/itext-xtra-5.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/itextpdf-5.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

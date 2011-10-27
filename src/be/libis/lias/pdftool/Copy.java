@@ -3,12 +3,10 @@ package be.libis.lias.pdftool;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
+//import java.util.logging.Logger;
 
-import be.libis.lias.toolbox.GeneralOptionsManager;
 import be.libis.lias.toolbox.RandomString;
 
 import com.itextpdf.text.BaseColor;
@@ -37,7 +35,7 @@ import com.itextpdf.text.pdf.PdfReader;
  */
 public class Copy {
 
-  private static final Logger logger        = Logger.getLogger(Copy.class.getName());
+//  private static final Logger logger        = Logger.getLogger(Copy.class.getName());
 
   private static PdfName      blending_mode = PdfGState.BM_HARDLIGHT;
   private static float        opacity       = 0.1f;
@@ -56,53 +54,6 @@ public class Copy {
    * @param args the command line arguments
    * @throws IOException
    */
-  public static void main(String[] args) throws IOException {
-    CopyOptions options = new GeneralOptionsManager<CopyOptions>().processOptions(CopyOptions.class, args, logger);
-
-    if (options == null)
-      return; // error messages are printed by GeneralOptionsHandler
-
-    if ((!options.isWatermarkText() && !options.isWatermarkImage())
-        || (options.isWatermarkText() && options.isWatermarkImage())) {
-      logger.severe("Either watermark text or watermark image must be specified.");
-      return;
-    }
-
-    File source = options.getSourceFile();
-
-    if (!source.exists()) {
-      logger.severe("Source file '" + source.getAbsolutePath() + "' not found.");
-      return;
-    }
-
-    if (!source.canRead()) {
-      logger.severe("Source file '" + source.getAbsolutePath() + "' cannot be read.");
-      return;
-    }
-
-    File target = options.getTargetFile();
-
-    if (!target.exists())
-      target.createNewFile();
-
-    if (!target.canWrite()) {
-      logger.severe("Target file '" + target.getAbsolutePath() + "' cannot be written.");
-      return;
-    }
-
-    if (options.isOpacity())
-      opacity = options.getOpacity();
-    if (options.isGapRatio())
-      gap_ratio = options.getGapRatio();
-    if (options.isGapSize())
-      gap_size = options.getGapSize();
-    if (options.isFontSize())
-      font_size = options.getFontSize();
-    if (options.isTextRotation())
-      text_rotation = options.getTextRotation();
-
-    new Copy(source, target, options);
-  }
 
   /**
    * Helper class to calculate image and text box sizes.
@@ -117,6 +68,7 @@ public class Copy {
     public float gap_height; /** the height of the whitespace around the object */
     public float total_width; /** the total width of the object including the whitespace */
     public float total_height; /** the total height of the object including the whitespace */
+    public float start_height = 0f; /** the extra height from where to start the object */
 
     /**
      * Constructor for a text box
@@ -132,8 +84,10 @@ public class Copy {
         if (_w > w)
           w = _w;
       }
+      // this is the heigth that the next lines take
+      start_height = (watermark_text.size() - 1) * (font_size * 1.5f); 
       float h = bf.getAscentPoint(watermark_text.get(0), font_size)
-          - bf.getDescentPoint(watermark_text.get(0), font_size) + (watermark_text.size() - 1) * (font_size * 1.5f);
+          - bf.getDescentPoint(watermark_text.get(0), font_size) + start_height;
       real_width = w * cosine + h * sine;
       real_height = w * sine + h * cosine;
       calculate_derived_sizes();
@@ -170,6 +124,18 @@ public class Copy {
    */
   public Copy(File source, File target, CopyOptions options) {
     try {
+      
+      if (options.isOpacity())
+        opacity = options.getOpacity();
+      if (options.isGapRatio())
+        gap_ratio = options.getGapRatio();
+      if (options.isGapSize())
+        gap_size = options.getGapSize();
+      if (options.isFontSize())
+        font_size = options.getFontSize();
+      if (options.isTextRotation())
+        text_rotation = options.getTextRotation();
+
       // Create reader on the source PDF and select the pages that were requested
       PdfReader reader = new PdfReader(source.getAbsolutePath());
       if (options.isPageRanges()) {
@@ -282,7 +248,7 @@ public class Copy {
           // the two nested loops create the matrix of watermark objects on the page
           float x = xl + size.gap_width / 2f;
           while (x < xr) {
-            float y = yb + size.gap_height / 2f;
+            float y = yb + size.gap_height / 2f + size.start_height;
             while (y < yt) {
               if (image != null) {
                 cb.addImage(image, size.real_width, 0, 0, size.real_height, x, y);
