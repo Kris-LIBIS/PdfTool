@@ -3,7 +3,7 @@ import java.io.PrintStream;
 import java.util.Properties;
 
 import be.libis.lias.pdftool.CopyOptions;
-import uk.co.flamingpenguin.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.CliFactory;
 
 /*
  * To change this template, choose Tools | Templates

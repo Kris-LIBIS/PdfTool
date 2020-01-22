@@ -1,6 +1,5 @@
 package be.libis.lias.pdftool;
 
-import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
@@ -20,6 +19,7 @@ import com.itextpdf.text.pdf.PdfGState;
 import com.itextpdf.text.pdf.PdfImportedPage;
 import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.awt.geom.*;
 
 /**
  * Class that combines all operations for copying PDF documents.
@@ -146,7 +146,7 @@ public class Copy {
       // Create a document and copier for the target PDF
       Document document = new Document();
       PdfCopy copy = new PdfCopy(document, new FileOutputStream(target));
-      copy.setPdfVersion(PdfCopy.VERSION_1_7);
+      copy.setPdfVersion(PdfCopy.VERSION_1_6);
 
       // Set encryption and compression on the target PDF
       String owner_password = new RandomString(32).nextString();
@@ -217,21 +217,21 @@ public class Copy {
         // Process watermark objects if required
         if (size != null) {
           // get over content to put watermark on top of all other objects
-          PdfContentByte cb = stamper.getOverContent();
+          PdfContentByte canvas = stamper.getOverContent();
           
           // create and set the graphics state
-          cb.beginText();
-          PdfGState gstate = new PdfGState();
-          gstate.setFillOpacity(opacity);
-          gstate.setStrokeOpacity(opacity);
-          gstate.setBlendMode(blending_mode);
-          cb.saveState();
-          cb.setGState(gstate);
+          canvas.beginText();
+          PdfGState pdfGState = new PdfGState();
+          pdfGState.setFillOpacity(opacity);
+          pdfGState.setStrokeOpacity(opacity);
+          pdfGState.setBlendMode(blending_mode);
+          canvas.saveState();
+          canvas.setGState(pdfGState);
 
           // set font for text watermark
           if (watermark_text != null) {
-            cb.setFontAndSize(bf, font_size);
-            cb.setColorFill(BaseColor.BLACK);
+            canvas.setFontAndSize(bf, font_size);
+            canvas.setColorFill(BaseColor.BLACK);
           }
 
           // get the page dimensions
@@ -243,7 +243,7 @@ public class Copy {
 
           // affine transformation is actually ony required for text watermark
           // but we create it here to avoid the costly object creation for each text instancee
-          AffineTransform transform = new AffineTransform();
+          AffineTransform af = new AffineTransform();
           
           // the two nested loops create the matrix of watermark objects on the page
           float x = xl + size.gap_width / 2f;
@@ -251,18 +251,21 @@ public class Copy {
             float y = yb + size.gap_height / 2f + size.start_height;
             while (y < yt) {
               if (image != null) {
-                cb.addImage(image, size.real_width, 0, 0, size.real_height, x, y);
+                canvas.addImage(image, size.real_width, 0, 0, size.real_height, x, y);
               } else {
                 // Text position and rotation is performed by the affine transformation matrix
-                transform.setToTranslation(x, y);
-                transform.rotate(Math.toRadians(text_rotation));
-                cb.setTextMatrix(transform);
+            	  af.translate(x, y);
+            	  af.rotate(Math.toRadians(text_rotation));
+            	  canvas.transform(af);
+                af.setToTranslation(x, y);
+                af.rotate(Math.toRadians(text_rotation));
+                canvas.setTextMatrix(af);
 
                 float delta_y = - font_size * 1.5f;
                 for (String text : watermark_text) {
-                  cb.showTextKerned(text);
-                  cb.newlineText();
-                  cb.moveText(0, delta_y);
+                  canvas.showTextKerned(text);
+                  canvas.newlineText();
+                  canvas.moveText(0, delta_y);
                 }
               }
               y += size.total_height;
@@ -270,9 +273,9 @@ public class Copy {
             x += size.total_width;
           }
 
-          cb.restoreState();
+          canvas.restoreState();
 
-          cb.endText();
+          canvas.endText();
 
           stamper.alterContents();
         }

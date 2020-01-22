@@ -3,7 +3,7 @@ package be.libis.lias.pdftool;
 import java.io.File;
 import java.util.List;
 
-import uk.co.flamingpenguin.jewel.cli.Option;
+import com.lexicalscope.jewel.cli.Option;
 import be.libis.lias.toolbox.GeneralOptions;
 
 public interface CopyOptions extends GeneralOptions {

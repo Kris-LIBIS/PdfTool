@@ -1,29 +1,22 @@
 <?xml version="1.0" ?>
 <!DOCTYPE project>
 <project name="PdfTool" default="main">
-  <target name="main" depends="create_run_jar" />
-  <target name="create_run_jar" description="Build runnable jar">
-      <jar destfile="dist/PdfTool.jar" filesetmanifest="mergewithoutmain">
-          <manifest>
-              <attribute name="Main-Class" value="Main"/>
-              <attribute name="Class-Path" value="."/>
-          </manifest>
-          <fileset dir="bin"/>
-      	  <fileset dir="." includes="data/*.ttf"/>
-          <zipfileset excludes="META-INF/*.SF" src="../LIASToolBox/dist/LIASToolBox.jar"/>
-          <zipfileset excludes="META-INF/*.SF" src="../LIASToolBox/dist/lib/jewelcli-0.6.jar"/>
-          <zipfileset excludes="META-INF/*.SF" src="lib/bcmail-jdk15-146.jar"/>
-          <zipfileset excludes="META-INF/*.SF" src="lib/bcprov-jdk15-146.jar"/>
-          <zipfileset excludes="META-INF/*.SF" src="lib/bctsp-jdk15-146.jar"/>
-          <zipfileset excludes="META-INF/*.SF" src="lib/itext-asian.jar"/>
-          <zipfileset excludes="META-INF/*.SF" src="lib/itext-asiancmaps.jar"/>
-          <zipfileset excludes="META-INF/*.SF" src="lib/itext-hyph-xml.jar"/>
-          <zipfileset excludes="META-INF/*.SF" src="lib/itext-xtra-5.1.0.jar"/>
-          <zipfileset excludes="META-INF/*.SF" src="lib/itextpdf-5.1.0.jar"/>
-      	  
-      </jar>
-  </target>
-  <target name="doc">
-    <javadoc sourcepath="src" destdir="doc" use="true" />
-  </target>
+	<target name="main" depends="create_run_jar" />
+	<target name="create_run_jar" description="Build runnable jar">
+		<jar destfile="dist/PdfTool.jar" filesetmanifest="mergewithoutmain">
+			<manifest>
+				<attribute name="Main-Class" value="Main"/>
+				<attribute name="Class-Path" value="."/>
+			</manifest>
+			<fileset dir="bin"/>
+			<fileset dir="." includes="data/*.ttf"/>
+			<zipfileset excludes="META-INF/*.SF" src="../LIASToolBox/dist/LIASToolBox.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="../LIASToolBox/lib/jewelcli-0.8.9.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/itextpdf-5.5.7.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/itext-pdfa-5.5.7.jar"/>
+		</jar>
+	</target>
+	<target name="doc">
+		<javadoc sourcepath="src" destdir="doc" use="true" />
+	</target>
 </project>

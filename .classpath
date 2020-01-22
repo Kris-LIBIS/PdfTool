@@ -6,16 +6,10 @@
 			<attribute name="javadoc_location" value="file:/data/eclipse/LIASToolBox/doc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/LIASToolBox/dist/lib/jewelcli-0.6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/LIASToolBox"/>
-	<classpathentry kind="lib" path="lib/bcmail-jdk15-146.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-jdk15-146.jar"/>
-	<classpathentry kind="lib" path="lib/bctsp-jdk15-146.jar"/>
-	<classpathentry kind="lib" path="lib/itext-asian.jar"/>
-	<classpathentry kind="lib" path="lib/itext-asiancmaps.jar"/>
-	<classpathentry kind="lib" path="lib/itext-hyph-xml.jar"/>
-	<classpathentry kind="lib" path="lib/itext-xtra-5.1.0.jar"/>
-	<classpathentry kind="lib" path="lib/itextpdf-5.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/itext-pdfa-5.5.7.jar"/>
+	<classpathentry kind="lib" path="lib/itextpdf-5.5.7.jar"/>
+	<classpathentry kind="lib" path="/LIASToolBox/lib/jewelcli-0.8.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
